@@ -1,0 +1,161 @@
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/highcharts.src.js"></script>
+
+<div id="container" style="height: 400px; width:700; position: relative;margin:0 auto"></div>
+<script>
+var startx,starty,endx,endy,chart;
+chart = new Highcharts.Chart({
+					chart: {
+						renderTo: 'container', 
+						defaultSeriesType: 'spline',events: {
+							load: function() {
+				
+							}
+							
+									
+													
+								
+							}
+						
+					},
+					title: {
+						text: 'Sample Data Series'
+					},
+					credits:{enabled:false},
+					xAxis: {
+						type: 'datetime',
+						tickPixelInterval: 150
+					},
+					yAxis: {
+						title: {
+							text: 'Sample Data Series'
+						},
+						labels: {
+							formatter: function() {
+								return this.value ;
+							}
+						}
+					},
+					tooltip: {
+						formatter: function() {
+							return this.series.name +' <b>'+
+								this.y;
+						}
+					},
+					plotOptions: {
+						area: {
+							pointStart: 1940,
+							marker: {
+								enabled: false,
+								symbol: 'circle',
+								radius: 2,
+								states: {
+									hover: {
+										enabled: true
+									}
+								}
+							}
+						}
+					},
+					series: [{
+						name: 'Random data',
+						data: (function() {
+							// generate an array of random data
+							var data = [],
+								time = (new Date()).getTime(),
+								i;
+							for (i = 0; i <=10; i++) {
+								data.push({
+									x: time + i * 1000,
+									y: Math.random()
+								});
+							}
+							return data;
+						})()
+					}]
+				});
+				
+			var group=chart.renderer.g().add();
+				chart.container.onmousedown = function(e) {
+										//alert(e.layerX+"=>"+e.layerY);
+										startx=e.layerX;
+										starty=e.layerY;
+							
+									}
+									chart.container.onmouseup=function(e) { 
+										endx=e.layerX;
+										endy=e.layerY;
+										var id=$('#shape').val();
+										var linelength,x,y;
+										
+										if(id==1)
+										drawline(startx,starty,endx,endy);	
+										else {
+										if(startx && starty && endx && endy)
+										x=Math.abs(startx-endx);
+										y=Math.abs(starty-endy);
+										linelength=Math.sqrt(Math.pow(x,2)+Math.pow(y,2));
+										drawArc(startx,starty,endx,endy,linelength);
+										}
+									}
+		function drawline(startx,starty,endx,endy) { 
+		chart.renderer.path(['M', startx,starty, 'L', endx,endy])
+				.attr({
+				'stroke-width': 1,
+				stroke: 'black'
+				})
+				.add(group);}
+		function drawArc(startx,starty,endx,endy,outerradious) {
+		var p1,p2,l1,l2,l3;
+		if(endy-starty>0) {
+			p1=-Math.PI; p2=0;
+		}
+		else {
+			p1=0;p2=-Math.PI;
+		}
+		// calculate the length for the three arcs
+		// first one is 61.8 of actual length
+		// second one is 50% of the actual length
+		//third is 38.2 of the actual length
+		l1=(outerradious*61.8)/100;
+		l2=(outerradious*50)/100;
+		l3=(outerradious*38.2)/100;
+			chart.renderer.arc(endx,endy,l1,l1,p1,p2).attr({stroke:'blue',	'stroke-width':1}).add(group);
+			chart.renderer.arc(endx,endy,l2,l2,p1,p2).attr({stroke:'red',	'stroke-width':1}).add(group);
+			chart.renderer.arc(endx,endy,l3,l3,p1,p2).attr({stroke:'green',	'stroke-width':1}).add(group);
+			
+			chart.renderer.path(['M', startx,starty, 'L', endx,endy])
+				.attr({
+				'stroke-width': 1,
+				stroke: '#ccc'
+				})
+				.add(group);
+		}
+		
+ 
+		
+
+</script>
+<div style="margin:0 auto; width:700px; text-align:center">
+<input type="hidden" name="shape" id="shape" value="1" />
+<input type="button" id="arc" name="arc" value="ARC" >&nbsp;&nbsp;
+<input type="button" id="line" name="line" value="LINE" >&nbsp;&nbsp;
+<input type="button" name="toggle" id="toggle" value="Toggle All Drawings">
+<script>
+$('#arc').click(function () {
+	$('#shape').val(2);
+});
+$('#line').click(function () {
+	$('#shape').val(1);
+		
+});
+var vis=true;
+$('#toggle').click(function () {
+if(vis) group.hide();
+else group.show();
+vis=!vis;
+});
+
+</script>
+</div>
+
